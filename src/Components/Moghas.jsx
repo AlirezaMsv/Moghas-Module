@@ -1,15 +1,26 @@
 import { FloatButton, Card, Divider, Collapse } from "antd";
 import QueueAnim from "rc-queue-anim";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   QuestionCircleOutlined,
   PlusOutlined,
   CaretRightOutlined,
 } from "@ant-design/icons";
+import { getApi } from "./hooks/api";
 
 function Moghas() {
   const [showFAQ, setShowFAQ] = useState(false);
   const { Meta } = Card;
+
+  useEffect(() => {
+    getApi(`api/CustomerSettings/get-setting?customerId=17&type=FAQ`)
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
 
   const items = [
     {
@@ -61,9 +72,7 @@ function Moghas() {
         style={{ right: 24, bottom: 24 }}
         icon={<QuestionCircleOutlined />}
       >
-        <FloatButton
-          icon={<PlusOutlined />}
-        />
+        <FloatButton icon={<PlusOutlined />} />
       </FloatButton.Group>
       <QueueAnim
         animConfig={[
