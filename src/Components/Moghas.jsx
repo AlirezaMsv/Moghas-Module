@@ -1,118 +1,272 @@
-import { FloatButton, Card, Divider, Collapse } from "antd";
+import { FloatButton, Card, Divider, ConfigProvider, message } from "antd";
 import QueueAnim from "rc-queue-anim";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
+  CommentOutlined,
+  DingtalkOutlined,
+  DiscordOutlined,
   QuestionCircleOutlined,
-  PlusOutlined,
-  CaretRightOutlined,
+  RedditOutlined,
+  TwitchOutlined,
+  TwitterOutlined,
+  WechatOutlined,
+  WhatsAppOutlined,
 } from "@ant-design/icons";
 import { getApi } from "./hooks/api";
+import FAQ from "./FAQ";
+import NotOnline from "./NotOnline";
+import Chat from "./Chat";
+import img from "../assets/imgs/support.png";
 
 function Moghas() {
-  const [showFAQ, setShowFAQ] = useState(false);
+  const [show, setShow] = useState(false);
+  const [loading, setLoading] = useState();
+  const [isOnline, setIsOnline] = useState();
+  const [size, setSize] = useState("");
+  const [icon, setIcon] = useState();
+  const [chat_background, setChat_background] = useState("");
+  const [showFAQFirst, setShowFAqFirst] = useState();
+  const [position, setPosition] = useState();
+  const [icon_backgroundColor, setIcon_backgroundColor] = useState();
+  const [iconColor, setIconColor] = useState();
+  const [intro, setIntro] = useState();
+  const [shape, setShape] = useState();
+  const [status, setStatus] = useState();
+  const [title, setTitle] = useState();
+  const [requireUsername, setRequireUsername] = useState();
+  const [FAQs, setFAQs] = useState([]);
+  const [showChat, setShowChat] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
+
   const { Meta } = Card;
 
+  const iconStyle = {
+    color: iconColor,
+    fontSize:
+      size === "large" ? "2rem" : size === "medium" ? "1.5rem" : "1.2rem",
+  };
+
   useEffect(() => {
-    getApi(`api/CustomerSettings/get-setting?customerId=17&type=FAQ`)
+    setLoading(true);
+    getApi(`api/CustomerSettings/get-setting?customerId=17&type=UI`)
       .then((data) => {
-        console.log(data);
+        data.map((e) => {
+          switch (e.key) {
+            case "icon_backgroundColor":
+              setIcon_backgroundColor(e.value);
+              break;
+            case "iconColor":
+              setIconColor(e.value);
+              break;
+            case "size":
+              setSize(e.value);
+              break;
+            case "position":
+              setPosition(e.value);
+              break;
+            case "shape":
+              setShape(e.value);
+              break;
+            case "title":
+              setTitle(e.value);
+              break;
+            case "status":
+              setStatus(e.value);
+              break;
+            case "intro":
+              setIntro(e.value);
+              break;
+            case "chat_background":
+              setChat_background(e.value);
+              break;
+            case "showFaqFirst":
+              setShowFAqFirst(e.value === "true" ? true : false);
+              break;
+            case "requireUsername":
+              setRequireUsername(e.value === "true" ? true : false);
+              break;
+            case "requirePhone":
+              setIsOnline(e.value === "true" ? true : false);
+              break;
+            case "icon":
+              setIcon(e.value);
+              break;
+          }
+        });
       })
       .catch((err) => {
         console.log(err);
       });
   }, []);
 
-  const items = [
-    {
-      key: "1",
-      label: "چه نوع اسنادی می‌توان در سیستم مدیریت اسناد ذخیره کرد؟",
-      children: (
-        <p>
-          سیستم مدیریت اسناد قادر است تمامی نوع اسناد را ذخیره کند، از جمله
-          اسناد متنی، تصاویر، فایل‌های صوتی و ویدیویی و ...
-        </p>
-      ),
-    },
-    {
-      key: "2",
-      label: "آیا سیستم مدیریت اسناد به شبکه اینترنت متصل است؟",
-      children: (
-        <p>
-          بله، سیستم مدیریت اسناد معمولاً به شبکه اینترنت متصل است تا کاربران
-          بتوانند به راحتی به اطلاعات دسترسی پیدا کنند و با همکاران خود در سراسر
-          جهان ارتباط برقرار کنند.
-        </p>
-      ),
-    },
-    {
-      key: "3",
-      label: "استفاده از سیستم مدیریت اسناد چه مزایایی دارد؟",
-      children: (
-        <p>
-          استفاده از سیستم مدیریت اسناد دارای مزایای زیادی است، از جمله:
-          <br />
-          - افزایش بهره‌وری و کارآیی سازمان
-          <br />
-          - کاهش هزینه‌های مربوط به ذخیره سازی و نگهداری اسناد
-          <br />
-          - بهبود دسترسی به اطلاعات
-          <br />- حفاظت از اطلاعات و جلوگیری از دسترسی غیرمجاز به آن‌ها
-        </p>
-      ),
-    },
-  ];
+  useEffect(() => {
+    // fetch faq
+    if (showFAQFirst) {
+      getApi(`api/CustomerSettings/get-setting?customerId=17&type=FAQ`)
+        .then((data) => {
+          const arr = [];
+          data.map((q, i) => {
+            arr.push({
+              key: `${i}`,
+              label: q.key,
+              children: <p>{q.value}</p>,
+            });
+          });
+          setFAQs(arr);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+    setLoading(false);
+  }, [showFAQFirst]);
 
-  return (
-    <>
+  const showContent = useCallback(() => {
+    if (showChat || (isOnline && !showFAQFirst)) {
+      return (
+        <Chat
+          requireUsername={requireUsername}
+          chat_background={chat_background}
+          messageApi={messageApi}
+        />
+      );
+    }
+    if (!isOnline) {
+      return <NotOnline intro={intro} messageApi={messageApi} setShow={setShow} />;
+    }
+    if (showFAQFirst) {
+      return (
+        <FAQ items={FAQs} setShowChat={setShowChat} messageApi={messageApi} />
+      );
+    }
+  });
+
+  const getIcon = () => {
+    switch (icon) {
+      case "QuestionCircleOutlined":
+        return <QuestionCircleOutlined style={iconStyle} />;
+      case "WechatOutlined":
+        return <WechatOutlined style={iconStyle} />;
+      case "DiscordOutlined":
+        return <DiscordOutlined style={iconStyle} />;
+      case "TwitchOutlined":
+        return <TwitchOutlined style={iconStyle} />;
+      case "CommentOutlined":
+        return <CommentOutlined style={iconStyle} />;
+      case "WhatsAppOutlined":
+        return <WhatsAppOutlined style={iconStyle} />;
+      case "TwitterOutlined":
+        return <TwitterOutlined style={iconStyle} />;
+      case "DingtalkOutlined":
+        return <DingtalkOutlined style={iconStyle} />;
+      case "RedditOutlined":
+        return <RedditOutlined style={iconStyle} />;
+    }
+  };
+
+  const lightenColor = (hex, percent) => {
+    if (hex) {
+      // Convert hex to RGB
+      let r = parseInt(hex.slice(1, 3), 16);
+      let g = parseInt(hex.slice(3, 5), 16);
+      let b = parseInt(hex.slice(5, 7), 16);
+
+      // Increase each channel by the given percentage
+      r = Math.min(255, Math.floor(r + ((255 - r) * percent) / 100));
+      g = Math.min(255, Math.floor(g + ((255 - g) * percent) / 100));
+      b = Math.min(255, Math.floor(b + ((255 - b) * percent) / 100));
+
+      // Convert back to hex
+      r = r.toString(16).padStart(2, "0");
+      g = g.toString(16).padStart(2, "0");
+      b = b.toString(16).padStart(2, "0");
+
+      return `#${r}${g}${b}`;
+    }
+  };
+
+  // Update CSS variables
+  const customStyle = {
+    "--float-btn-width": `${
+      size === "large" ? 3.5 : size === "medium" ? 3 : 2.5
+    }rem`,
+    "--float-btn-height": `${
+      size === "large" ? 3.5 : size === "medium" ? 3 : 2.5
+    }rem`,
+  };
+
+  return loading ? (
+    <></>
+  ) : (
+    <ConfigProvider
+      theme={{
+        components: {
+          FloatButton: {
+            colorPrimary: icon_backgroundColor,
+            colorPrimaryHover: lightenColor(icon_backgroundColor, 20),
+            paddingXXS: 0,
+          },
+          Collapse: {
+            fontFamily: "VazirFD",
+          },
+          Card: {
+            fontFamily: "VazirFD",
+          },
+          Button: {
+            fontFamily: "VazirFD",
+          },
+        },
+      }}
+    >
+      {contextHolder}
       <FloatButton.Group
-        open={showFAQ}
+        open={show}
         type="primary"
         trigger="click"
-        onClick={() => setShowFAQ((prev) => !prev)}
-        style={{ right: 24, bottom: 24 }}
-        icon={<QuestionCircleOutlined />}
-      >
-        <FloatButton icon={<PlusOutlined />} />
-      </FloatButton.Group>
+        shape={shape}
+        onClick={() => setShow((prev) => !prev)}
+        style={{
+          ...customStyle,
+          bottom: 24,
+          ...(position === "right" ? { right: 24 } : { left: 24 }),
+        }}
+        icon={getIcon()}
+      />
       <QueueAnim
         animConfig={[
           { opacity: [1, 0], translateY: [0, 50] },
           { opacity: [1, 0], translateY: [0, -50] },
         ]}
       >
-        {showFAQ ? (
+        {show ? (
           <Card
             key="a"
             // bordered={false}
             style={{
               position: "fixed",
-              width: 300,
+              width: 350,
+              direction: "rtl",
               height: 500,
               bottom: 24,
-              right: 70,
               zIndex: 10,
               overflowY: "scroll",
+              ...(position === "right" ? { right: 80 } : { left: 80 }),
             }}
           >
             <Meta
-              title="سوالات پرتکرار"
-              description="در صورتی که سوال مورد نظر خود را پیدا نکردید. میتوانید با زدن دکمه + سوال خود را بپرسید"
+              title={title}
+              description={status}
+              avatar={<img src={img} className="w-16" />}
             />
             <Divider />
-            <Collapse
-              expandIconPosition="end"
-              accordion
-              items={items}
-              expandIcon={({ isActive }) => (
-                <CaretRightOutlined rotate={isActive ? 270 : 180} />
-              )}
-            />
+            {showContent()}
           </Card>
         ) : (
           <></>
         )}
       </QueueAnim>
-    </>
+    </ConfigProvider>
   );
 }
 
