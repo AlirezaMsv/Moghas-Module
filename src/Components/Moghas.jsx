@@ -1,4 +1,11 @@
-import { FloatButton, Card, Divider, ConfigProvider, message } from "antd";
+import {
+  FloatButton,
+  Card,
+  Divider,
+  ConfigProvider,
+  message,
+  Button,
+} from "antd";
 import QueueAnim from "rc-queue-anim";
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -133,7 +140,9 @@ function Moghas() {
       );
     }
     if (!isOnline) {
-      return <NotOnline intro={intro} messageApi={messageApi} setShow={setShow} />;
+      return (
+        <NotOnline intro={intro} messageApi={messageApi} setShow={setShow} />
+      );
     }
     if (showFAQFirst) {
       return (
@@ -242,12 +251,13 @@ function Moghas() {
         {show ? (
           <Card
             key="a"
+            extra={<Button className="bg-red-600">پایان چت</Button>}
             // bordered={false}
             style={{
               position: "fixed",
-              width: 350,
+              width: 450,
               direction: "rtl",
-              height: 500,
+              height: 550,
               bottom: 24,
               zIndex: 10,
               overflowY: "scroll",

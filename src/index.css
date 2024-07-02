@@ -42,3 +42,12 @@ code {
   height: fit-content !important;
   width: fit-content !important;
 }
+
+iframe, .ant-pro-chat-input-area-action-bar {
+  display: none !important;
+}
+
+/* .ant-pro-chat-input-area-component-textarea{
+  margin: 0.5rem 3rem !important;
+  width: 80% !important;
+} */
