@@ -1,16 +1,25 @@
 import { Button, ConfigProvider, Input, message } from "antd";
 import { useEffect, useState } from "react";
-import { postApi } from "./hooks/api";
+import { getApi, postApi } from "./hooks/api";
 import { ProChat } from "@ant-design/pro-chat";
 import { SendOutlined } from "@ant-design/icons";
 
-const Chat = ({ requireUsername, chat_background, messageApi }) => {
+const Chat = ({
+  requireUsername,
+  chat_background,
+  messageApi,
+  chatId,
+  setChatId,
+  setShowEndChat,
+  showRate,
+}) => {
   const [username, setUsername] = useState("");
   const [showChat, setShowChat] = useState(false);
   const [loading, setLoading] = useState(false);
   const [messageLoading, setMessageLoading] = useState(false);
   const [text, setText] = useState("");
   const [messages, setMessages] = useState([]);
+  const [lastMessageId, setLastMessageId] = useState();
 
   const handleStartChat = () => {
     if (requireUsername && username.trim() === "") {
@@ -34,6 +43,7 @@ const Chat = ({ requireUsername, chat_background, messageApi }) => {
     )
       .then((data) => {
         localStorage.setItem("chatId", data);
+        localStorage.setItem("username", username);
         setShowChat(true);
         setLoading(false);
         // postApi(
@@ -56,6 +66,85 @@ const Chat = ({ requireUsername, chat_background, messageApi }) => {
       });
   };
 
+  const listenForNewMessage = () => {
+    getApi(`api/Chat/get-last-message?chatId=${localStorage.getItem("chatId")}`)
+      .then((data) => {
+        if (
+          data.id !== lastMessageId &&
+          !loading &&
+          !messageLoading &&
+          data.sender !== localStorage.getItem("username")
+        ) {
+          setLoading(true);
+          console.log(data.id + " - " + lastMessageId);
+          console.log(messages.length);
+
+          // Use the setter function to update messages
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              role: "user",
+              content: data.text,
+              loading: false,
+              id: data.id,
+            },
+          ]);
+
+          setLastMessageId(data.id);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    if (showChat && !loading) {
+      const intervalId = setInterval(listenForNewMessage, 1000);
+      return () => clearInterval(intervalId); // Clear interval on cleanup
+    }
+  }, [showChat, loading]); // Add necessary dependencies
+
+  useEffect(() => {
+    if (chatId) {
+      setShowChat(true);
+      setLoading(true);
+      getApi(`api/Chat/get-all-messages?chatId=${chatId}`)
+        .then((data) => {
+          const arr = [];
+          data.map((m, i) => {
+            if (i === data.length - 1) {
+              setLastMessageId(m.id);
+            }
+            arr.push({
+              role:
+                m.sender === localStorage.getItem("username")
+                  ? "system"
+                  : "user",
+              content: m.message,
+              loading: false,
+              id: m.id,
+            });
+          });
+          setMessages(arr);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoading(false);
+          messageApi.open({
+            type: "error",
+            content: "خطایی رخ داد!",
+            style: {
+              fontFamily: "VazirFD",
+              direction: "rtl",
+            },
+          });
+        });
+    }
+  }, []);
+
   const handleSendMessage = () => {
     setMessageLoading(true);
     postApi(
@@ -67,17 +156,18 @@ const Chat = ({ requireUsername, chat_background, messageApi }) => {
         const arr = [];
         messages.map((c) => arr.push(c));
         arr.push({
-          role: "user",
+          role: "system",
           content: text,
           loading: false,
-          id: arr.length,
+          id: data,
         });
         setText("");
         setMessages(arr);
         setMessageLoading(false);
+        setLastMessageId(data);
       })
       .catch((err) => {
-        setLoading(false);
+        setMessageLoading(false);
         console.log(err);
         messageApi.open({
           type: "error",
@@ -114,7 +204,7 @@ const Chat = ({ requireUsername, chat_background, messageApi }) => {
               loading={messageLoading}
               onClick={handleSendMessage}
               className="mx-2"
-              icon={<SendOutlined />}
+              icon={<SendOutlined rotate={180} />}
             />
           );
         }}

@@ -44,6 +44,9 @@ function Moghas() {
   const [FAQs, setFAQs] = useState([]);
   const [showChat, setShowChat] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
+  const [chatId, setChatId] = useState(null);
+  const [showEndChat, setShowEndChat] = useState(false);
+  const [showRate, setShowRate] = useState(false);
 
   const { Meta } = Card;
 
@@ -129,13 +132,28 @@ function Moghas() {
     setLoading(false);
   }, [showFAQFirst]);
 
+  const handleEndChat = () => {};
+
+  useEffect(() => {
+    if (localStorage.getItem("chatId") 
+      && localStorage.getItem("username")
+    ) {
+      setShowChat(true);
+      setChatId(localStorage.getItem("chatId"));
+    }
+  }, []);
+
   const showContent = useCallback(() => {
     if (showChat || (isOnline && !showFAQFirst)) {
       return (
         <Chat
           requireUsername={requireUsername}
+          setShowEndChat={setShowEndChat}
           chat_background={chat_background}
           messageApi={messageApi}
+          chatId={chatId}
+          setChatId={setChatId}
+          showRate={showRate}
         />
       );
     }
@@ -149,7 +167,7 @@ function Moghas() {
         <FAQ items={FAQs} setShowChat={setShowChat} messageApi={messageApi} />
       );
     }
-  });
+  }, [showChat]);
 
   const getIcon = () => {
     switch (icon) {
@@ -251,7 +269,13 @@ function Moghas() {
         {show ? (
           <Card
             key="a"
-            extra={<Button className="bg-red-600">پایان چت</Button>}
+            extra={
+              showEndChat ? (
+                <Button className="bg-red-600">پایان چت</Button>
+              ) : (
+                <></>
+              )
+            }
             // bordered={false}
             style={{
               position: "fixed",
