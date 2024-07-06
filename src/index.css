@@ -1,13 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  @font-face {
+    font-family: VazirFD;
+    src: url("./assets/fonts/Farsi_Vazir/Vazir-FD-WOL.eot") format("eot"),
+      url("./assets/fonts/Farsi_Vazir/Vazir-FD-WOL.ttf") format("ttf"),
+      url("./assets/fonts/Farsi_Vazir/Vazir-FD-WOL.woff") format("woff"),
+      url("./assets/fonts/Farsi_Vazir/Vazir-FD-WOL.woff2") format("woff2");
+  }
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+.font,
+.fontPlaceholder::placeholder ,
+.ant-input::placeholder{
+  font-family: VazirFD !important;
+}
+
+/* styles.css */
+.ant-float-btn {
+  width: var(--float-btn-width, 3rem) !important;
+  height: var(--float-btn-height, 3rem) !important;
+}
+
+.ant-float-btn-icon {
+  height: fit-content !important;
+  width: fit-content !important;
+}
+
+iframe, .ant-pro-chat-input-area-action-bar {
+  display: none !important;
+}
+
+/* .ant-pro-chat-input-area-component-textarea{
+  margin: 0.5rem 3rem !important;
+  width: 80% !important;
+} */
