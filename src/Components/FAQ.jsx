@@ -1,7 +1,7 @@
 import { CaretRightOutlined, CustomerServiceOutlined } from "@ant-design/icons";
 import { Button, Collapse, Divider } from "antd";
 
-const FAQ = ({ items, setShowChat }) => {
+const FAQ = ({ items, setShowChat, setRefresh }) => {
   return (
     <>
       <p className="font">
@@ -24,7 +24,10 @@ const FAQ = ({ items, setShowChat }) => {
       <Button
         className="w-full my-4 bg-green-500 font-bold text-white"
         icon={<CustomerServiceOutlined />}
-        onClick={() => setShowChat(true)}
+        onClick={() => {
+          setShowChat(true);
+          setRefresh((prev) => !prev);
+        }}
       >
         ارتباط با پشتیبان
       </Button>

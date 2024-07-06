@@ -24,6 +24,7 @@ import FAQ from "./FAQ";
 import NotOnline from "./NotOnline";
 import Chat from "./Chat";
 import img from "../assets/imgs/support.png";
+import RateChat from "./RateChat";
 
 function Moghas() {
   const [show, setShow] = useState(false);
@@ -47,6 +48,7 @@ function Moghas() {
   const [chatId, setChatId] = useState(null);
   const [showEndChat, setShowEndChat] = useState(false);
   const [showRate, setShowRate] = useState(false);
+  const [refresh, setRefresh] = useState(false);
 
   const { Meta } = Card;
 
@@ -58,7 +60,11 @@ function Moghas() {
 
   useEffect(() => {
     setLoading(true);
-    getApi(`api/CustomerSettings/get-setting?customerId=17&type=UI`)
+    getApi(
+      `api/CustomerSettings/get-setting?customerId=${localStorage.getItem(
+        "customerId"
+      )}&type=UI`
+    )
       .then((data) => {
         data.map((e) => {
           switch (e.key) {
@@ -112,7 +118,11 @@ function Moghas() {
   useEffect(() => {
     // fetch faq
     if (showFAQFirst) {
-      getApi(`api/CustomerSettings/get-setting?customerId=17&type=FAQ`)
+      getApi(
+        `api/CustomerSettings/get-setting?customerId=${localStorage.getItem(
+          "customerId"
+        )}&type=FAQ`
+      )
         .then((data) => {
           const arr = [];
           data.map((q, i) => {
@@ -124,26 +134,40 @@ function Moghas() {
           });
           setFAQs(arr);
           setLoading(false);
+          setRefresh((prev) => !prev);
         })
         .catch((err) => {
           console.log(err);
+          setLoading(false);
         });
     }
-    setLoading(false);
   }, [showFAQFirst]);
 
-  const handleEndChat = () => {};
+  const handleEndChat = () => {
+    setShowRate(true);
+    setRefresh((prev) => !prev);
+  };
 
   useEffect(() => {
-    if (localStorage.getItem("chatId") 
-      && localStorage.getItem("username")
-    ) {
+    if (localStorage.getItem("chatId") && localStorage.getItem("username")) {
       setShowChat(true);
       setChatId(localStorage.getItem("chatId"));
+      setRefresh((prev) => !prev);
     }
   }, []);
 
   const showContent = useCallback(() => {
+    if (showRate) {
+      return (
+        <RateChat
+          messageApi={messageApi}
+          close={() => setShow(false)}
+          setShowChat={setShowChat}
+          setRefresh={setRefresh}
+          showRate={showRate}
+        />
+      );
+    }
     if (showChat || (isOnline && !showFAQFirst)) {
       return (
         <Chat
@@ -164,10 +188,15 @@ function Moghas() {
     }
     if (showFAQFirst) {
       return (
-        <FAQ items={FAQs} setShowChat={setShowChat} messageApi={messageApi} />
+        <FAQ
+          items={FAQs}
+          setShowChat={setShowChat}
+          messageApi={messageApi}
+          setRefresh={setRefresh}
+        />
       );
     }
-  }, [showChat]);
+  }, [refresh]);
 
   const getIcon = () => {
     switch (icon) {
@@ -243,6 +272,9 @@ function Moghas() {
           Button: {
             fontFamily: "VazirFD",
           },
+          Rate: {
+            fontFamily: "VazirFD",
+          },
         },
       }}
     >
@@ -270,8 +302,19 @@ function Moghas() {
           <Card
             key="a"
             extra={
-              showEndChat ? (
-                <Button className="bg-red-600">پایان چت</Button>
+              showRate ? (
+                <Button
+                  onClick={() => {
+                    setShowRate(false);
+                  }}
+                  className="bg-blue-400"
+                >
+                  بازگشت
+                </Button>
+              ) : showEndChat ? (
+                <Button onClick={handleEndChat} className="bg-red-400">
+                  پایان چت
+                </Button>
               ) : (
                 <></>
               )

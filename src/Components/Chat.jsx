@@ -1,4 +1,4 @@
-import { Button, ConfigProvider, Input, message } from "antd";
+import { Button, Input, Tooltip } from "antd";
 import { useEffect, useState } from "react";
 import { getApi, postApi } from "./hooks/api";
 import { ProChat } from "@ant-design/pro-chat";
@@ -9,9 +9,7 @@ const Chat = ({
   chat_background,
   messageApi,
   chatId,
-  setChatId,
   setShowEndChat,
-  showRate,
 }) => {
   const [username, setUsername] = useState("");
   const [showChat, setShowChat] = useState(false);
@@ -20,6 +18,8 @@ const Chat = ({
   const [text, setText] = useState("");
   const [messages, setMessages] = useState([]);
   const [lastMessageId, setLastMessageId] = useState();
+  const [tourContent, setTourContent] = useState();
+  const [showTourBtn, setShowTourBtn] = useState(false);
 
   const handleStartChat = () => {
     if (requireUsername && username.trim() === "") {
@@ -45,12 +45,13 @@ const Chat = ({
         localStorage.setItem("chatId", data);
         localStorage.setItem("username", username);
         setShowChat(true);
+        setShowEndChat(true);
         setLoading(false);
-        // postApi(
-        //   `api/Chat/email-new-chat?customerId=${localStorage.getItem(
-        //     "customerId"
-        //   )}`
-        // );
+        postApi(
+          `api/Chat/email-new-chat?customerId=${localStorage.getItem(
+            "customerId"
+          )}`
+        );
       })
       .catch((err) => {
         setLoading(false);
@@ -66,6 +67,16 @@ const Chat = ({
       });
   };
 
+  const handleMessages = (mess) => {
+    if (mess.startsWith("tour")) {
+      setShowTourBtn(true);
+      setTourContent(mess.slice(mess.indexOf("[")))
+      return "```tour\n" + mess.slice(4, mess.indexOf("[")) + "\n```";
+    } else {
+      return mess;
+    }
+  };
+
   const listenForNewMessage = () => {
     getApi(`api/Chat/get-last-message?chatId=${localStorage.getItem("chatId")}`)
       .then((data) => {
@@ -76,15 +87,13 @@ const Chat = ({
           data.sender !== localStorage.getItem("username")
         ) {
           setLoading(true);
-          console.log(data.id + " - " + lastMessageId);
-          console.log(messages.length);
 
           // Use the setter function to update messages
           setMessages((prevMessages) => [
             ...prevMessages,
             {
               role: "user",
-              content: data.text,
+              content: handleMessages(data.text),
               loading: false,
               id: data.id,
             },
@@ -109,6 +118,7 @@ const Chat = ({
   useEffect(() => {
     if (chatId) {
       setShowChat(true);
+      setShowEndChat(true);
       setLoading(true);
       getApi(`api/Chat/get-all-messages?chatId=${chatId}`)
         .then((data) => {
@@ -147,11 +157,10 @@ const Chat = ({
 
   const handleSendMessage = () => {
     setMessageLoading(true);
-    postApi(
-      `api/Chat/send-user-message?chatId=${localStorage.getItem(
-        "chatId"
-      )}&message=${text}`
-    )
+    postApi(`api/Chat/send-user-message`, {
+      chatId: localStorage.getItem("chatId"),
+      message: text,
+    })
       .then((data) => {
         const arr = [];
         messages.map((c) => arr.push(c));
@@ -180,17 +189,25 @@ const Chat = ({
       });
   };
 
+  const showTour = () => {
+    
+  }
+
   return showChat ? (
     <div style={{ background: chat_background }}>
       <ProChat
-        // loading={messageLoading}
+        loading={loading}
         helloMessage="بفرمایید!"
         chats={messages}
         style={{
           height: "50vh",
         }}
         inputRender={() => {
-          return (
+          return showTourBtn ? (
+            <Button onClick={showTour} className="w-full bg-orange-400 text-white">
+              نمایش تور
+            </Button>
+          ) : (
             <Input.TextArea
               value={text}
               onChange={(e) => setText(e.target.value)}
@@ -200,12 +217,16 @@ const Chat = ({
         }}
         sendButtonRender={() => {
           return (
-            <Button
-              loading={messageLoading}
-              onClick={handleSendMessage}
-              className="mx-2"
-              icon={<SendOutlined rotate={180} />}
-            />
+            <Tooltip title="ارسال پیام">
+              <Button
+                loading={messageLoading}
+                onClick={handleSendMessage}
+                className="mx-2"
+                icon={
+                  <SendOutlined rotate={180} className="hover:text-green-500" />
+                }
+              />
+            </Tooltip>
           );
         }}
       />
