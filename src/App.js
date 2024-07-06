@@ -1,6 +1,8 @@
-import { useEffect } from 'react';
-import './App.css';
-import Moghas from './Components/Moghas'
+import MyRoutes from "./MyRoutes";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import Moghas from "./Moghas/Components/Moghas";
+import { useEffect } from "react";
 
 function App() {
 
@@ -25,7 +27,12 @@ function App() {
   }, []);
 
   return (
-    <Moghas />
+    <div className="App">
+      <Moghas />
+      <Navbar />
+      <MyRoutes />
+      <Footer />
+    </div>
   );
 }
 

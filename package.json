@@ -1,14 +1,14 @@
 {
-  "name": "moghas-module",
+  "name": "latest",
+  "homepage": "/support",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@ant-design/icons": "^5.3.7",
     "@ant-design/pro-chat": "^1.14.2",
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
+    "@testing-library/jest-dom": "^5.16.3",
+    "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
-    "antd": "^5.17.3",
+    "antd": "^5.19.1",
     "antd-style": "^3.6.2",
     "axios": "^1.7.2",
     "customize-cra": "^1.0.0",
@@ -17,7 +17,9 @@
     "react": "^18.3.1",
     "react-app-rewired": "^2.2.1",
     "react-dom": "^18.3.1",
+    "react-router-dom": "^6.2.2",
     "react-scripts": "5.0.1",
+    "react-tabs": "^6.0.2",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -45,6 +47,8 @@
     ]
   },
   "devDependencies": {
-    "tailwindcss": "^3.4.4"
+    "autoprefixer": "^10.4.4",
+    "postcss": "^8.4.12",
+    "tailwindcss": "^3.0.23"
   }
 }
