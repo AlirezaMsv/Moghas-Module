@@ -306,6 +306,8 @@ function Moghas() {
                 <Button
                   onClick={() => {
                     setShowRate(false);
+                    setShowChat(true)
+                    setRefresh(prev => !prev)
                   }}
                   className="bg-blue-400"
                 >
