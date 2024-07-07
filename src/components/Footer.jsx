@@ -11,7 +11,7 @@ export default function Footer() {
             <h1 className="font-bold capitalize sm:pt-0 pt-8 pb-4">company</h1>
             <ul>
               <li>
-                <a href="#">About Us</a>
+                <a id="1" href="#">About Us</a>
               </li>
               <li>
                 <a href="#">Contact Us</a>
@@ -32,7 +32,7 @@ export default function Footer() {
                 <a href="#">Privacy Policy</a>
               </li>
               <li>
-                <a href="#">Careers</a>
+                <a id="2" href="#">Careers</a>
               </li>
             </ul>
           </div>
@@ -52,7 +52,7 @@ export default function Footer() {
                 <a href="#">Organizations</a>
               </li>
               <li>
-                <a href="#">Funding</a>
+                <a id="4" href="#">Funding</a>
               </li>
               <li>
                 <a href="#">CAwards</a>
@@ -69,7 +69,7 @@ export default function Footer() {
             <h1 className="font-bold capitalize sm:pt-0 pt-8 pb-4">connect</h1>
             <ul>
               <li>
-                <a href="#">Twitter</a>
+                <a id="3" href="#">Twitter</a>
               </li>
               <li>
                 <a href="#">Facebook</a>
@@ -78,7 +78,7 @@ export default function Footer() {
                 <a href="#">Linkedin</a>
               </li>
               <li>
-                <a href="#">Youtube</a>
+                <a id="5" href="#">Youtube</a>
               </li>
               <li>
                 <a href="#">RSS</a>

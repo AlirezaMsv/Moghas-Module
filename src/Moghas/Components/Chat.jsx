@@ -1,4 +1,4 @@
-import { Button, Input, Tooltip } from "antd";
+import { Button, Input, Tooltip, Tour } from "antd";
 import { useEffect, useState } from "react";
 import { getApi, postApi } from "./hooks/api";
 import { ProChat } from "@ant-design/pro-chat";
@@ -10,6 +10,9 @@ const Chat = ({
   messageApi,
   chatId,
   setShowEndChat,
+  close,
+  setTourSteps,
+  setOpenTour,
 }) => {
   const [username, setUsername] = useState("");
   const [showChat, setShowChat] = useState(false);
@@ -70,7 +73,7 @@ const Chat = ({
   const handleMessages = (mess) => {
     if (mess.startsWith("tour")) {
       setShowTourBtn(true);
-      setTourContent(mess.slice(mess.indexOf("[")))
+      setTourContent(mess.slice(mess.indexOf("[")));
       return "```tour\n" + mess.slice(4, mess.indexOf("[")) + "\n```";
     } else {
       return mess;
@@ -108,6 +111,14 @@ const Chat = ({
       });
   };
 
+  const chert = (mess) => {
+    if (mess.startsWith("tour")) {
+      return "```tour\n" + mess.slice(4, mess.indexOf("[")) + "\n```";
+    } else {
+      return mess;
+    }
+  };
+
   useEffect(() => {
     if (showChat && !loading) {
       const intervalId = setInterval(listenForNewMessage, 1000);
@@ -132,7 +143,7 @@ const Chat = ({
                 m.sender === localStorage.getItem("username")
                   ? "system"
                   : "user",
-              content: m.message,
+              content: chert(m.message),
               loading: false,
               id: m.id,
             });
@@ -190,8 +201,19 @@ const Chat = ({
   };
 
   const showTour = () => {
-    
-  }
+    console.log(JSON.parse(tourContent));
+    const sts = [];
+    JSON.parse(tourContent).map((s, i) => {
+      sts.push({
+        title: s.title,
+        description: s.description,
+        target: () => document.getElementById(`${s.subTitle.slice(1)}`),
+      });
+    });
+    setTourSteps(sts);
+    close();
+    setOpenTour(true);
+  };
 
   return showChat ? (
     <div style={{ background: chat_background }}>
@@ -204,7 +226,10 @@ const Chat = ({
         }}
         inputRender={() => {
           return showTourBtn ? (
-            <Button onClick={showTour} className="w-full bg-orange-400 text-white">
+            <Button
+              onClick={showTour}
+              className="w-full bg-orange-400 text-white"
+            >
               نمایش تور
             </Button>
           ) : (
@@ -219,6 +244,7 @@ const Chat = ({
           return (
             <Tooltip title="ارسال پیام">
               <Button
+                id="btn"
                 loading={messageLoading}
                 onClick={handleSendMessage}
                 className="mx-2"

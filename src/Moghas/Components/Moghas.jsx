@@ -26,7 +26,7 @@ import Chat from "./Chat";
 import img from "../assets/imgs/support.png";
 import RateChat from "./RateChat";
 
-function Moghas() {
+function Moghas({setOpenTour, setTourSteps}) {
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState();
   const [isOnline, setIsOnline] = useState();
@@ -178,6 +178,9 @@ function Moghas() {
           chatId={chatId}
           setChatId={setChatId}
           showRate={showRate}
+          close={() => setShow(false)}
+          setTourSteps={setTourSteps}
+          setOpenTour={setOpenTour}
         />
       );
     }

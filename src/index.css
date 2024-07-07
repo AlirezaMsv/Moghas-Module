@@ -81,6 +81,10 @@ iframe, .ant-pro-chat-input-area-action-bar {
   display: none !important;
 }
 
+.ant-tour-next-btn{
+  background-color: #27ae60;
+}
+
 /* .ant-pro-chat-input-area-component-textarea{
   margin: 0.5rem 3rem !important;
   width: 80% !important;
