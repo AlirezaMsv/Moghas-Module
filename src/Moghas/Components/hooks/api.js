@@ -48,7 +48,7 @@ function getOptions(request, downloadProgress, uploadProgress) {
 }
 
 export function getServerUrl() {
-  return window.publicUrl || process.env.apiAddress || localStorage.getItem("publicUrl");
+  return localStorage.getItem("publicUrl");
 }
 
 const normalizeResponse = (response) => {
